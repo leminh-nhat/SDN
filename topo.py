@@ -55,6 +55,11 @@ def createNetworkTopology():
     sBA.start([cB])
     sBB.start([cB])
 
+    # info('*** Running CLI\n')
+    # CLI(net)
+    # info('*** Stopping network')
+    # net.stop()
+
     return net
 
 if __name__ == '__main__':

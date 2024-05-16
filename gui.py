@@ -38,6 +38,10 @@ def format_y(n, pos):
 def gui(data, attack_range, itfs=[]):
     """Plot data and embed the figure in PySimpleGUI"""
 
+    # Thresholds
+    ATTACK_THRESHOLD = 4000 * 1000  # Convert Kbit/s to bits/s
+    PEACE_THRESHOLD = 10 * 1000  # Convert Kbit/s to bits/s
+
     # Calculate dynamic size
     if len(itfs) == 0 or len(itfs) >= 8:
         cols = 3
@@ -83,12 +87,15 @@ def gui(data, attack_range, itfs=[]):
         # Highlight attack range
         plt.axvspan(*attack_range, color='red', alpha=0.1)
 
+        # Add horizontal lines for thresholds
+        plt.axhline(y=ATTACK_THRESHOLD, color='red', linestyle='--', label='Attack Threshold')
+        # plt.axhline(y=PEACE_THRESHOLD, color='green', linestyle='--', label='Peace Threshold')
+
         # Format axis
         ax = plt.gca()
         ax.xaxis.set_major_formatter(FuncFormatter(format_x))
         ax.yaxis.set_major_formatter(FuncFormatter(format_y))
-        plt.setp(ax.get_xticklabels(), rotation=30,
-                 horizontalalignment='right')
+        plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
 
         i += 1
 
@@ -104,10 +111,9 @@ def gui(data, attack_range, itfs=[]):
     pp.savefig()
     pp.close()
 
-    # Confiure PySimpleGUI
+    # Configure PySimpleGUI
     layout = [
-        [sg.Column([[sg.Canvas(key='-C1-')]], key='-COL1-',
-                   scrollable=True, vertical_scroll_only=True)],
+        [sg.Column([[sg.Canvas(key='-C1-')]], key='-COL1-', scrollable=True, vertical_scroll_only=True)],
     ]
     window = sg.Window(
         'Mininet Attack Test',
@@ -117,3 +123,4 @@ def gui(data, attack_range, itfs=[]):
     window['-COL1-'].expand(True, True)
     event, values = window.read()
     window.close()
+
