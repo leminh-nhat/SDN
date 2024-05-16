@@ -346,42 +346,82 @@ class SimpleMonitor(simple_switch_13.SimpleSwitch13):
             
     # Identify the set of victims attacked by hosts located in the other domain
     # and directly apply policies to the attackers in the local domain
+    # def dealWithAttackers(self, victims):
+    #     # Set of victims attacked by the other domain
+    #     pushbacks = set()
+    #     # Set of attackers in the local domain
+    #     attackers = set()
+    #     # Set date and time of attack
+    #     now = datetime.now()
+    #     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    #     for victim in victims:
+    #         victimHost, victimSwitch, victimPort = self.getVictim(victim)
+    #         print ("Identified victim: MAC %s Host %s Switch %s Port %s" % (victim, victimHost, victimSwitch, victimPort))
+
+    #         victimAttackers = self.getAttackers(victim)
+    #         print ("Attackers for vicim %s: %s" % (victimAttackers, victimHost))
+    #         print ("Attack occurred at: ", dt_string)
+    #     if not victimAttackers:
+    #         # No attackers identified, thus assume it's originating in the other domain
+    #         pushbacks.add(victim)
+    #     else:
+    #         attackers = attackers.union(victimAttackers)
+        
+    #     # Increase the count for confidence in a suspected attack
+    #     # by the identifed attacker set if applicable
+    #     if len(attackers) > 0:
+    #         self.sustainedAttacks += 1
+    #         logging.debug("Sustained Attack Count %s" % self.sustainedAttacks / 3)
+    #     elif len(attackers) == 0:
+    #         self.sustainedAttacks = 0        
+
+    #     # If we have exceeded the confidence count for the local attacker
+    #     # set, apply ingress policies to all attackers
+    #     if self.sustainedAttacks / 3> SimpleMonitor.SUSTAINED_COUNT:
+    #         for attacker in self.attackers:
+    #             self.applyIngress(attacker)
+    #     return pushbacks
     def dealWithAttackers(self, victims):
-        # Set of victims attacked by the other domain
+    # Set of victims attacked by the other domain
         pushbacks = set()
         # Set of attackers in the local domain
         attackers = set()
         # Set date and time of attack
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        
+        victimAttackers = set()  # Initialize victimAttackers here
+
         for victim in victims:
             victimHost, victimSwitch, victimPort = self.getVictim(victim)
-            print ("Identified victim: MAC %s Host %s Switch %s Port %s" % (victim, victimHost, victimSwitch, victimPort))
+            print("Identified victim: MAC %s Host %s Switch %s Port %s" % (victim, victimHost, victimSwitch, victimPort))
 
             victimAttackers = self.getAttackers(victim)
-            print ("Attackers for vicim %s: %s" % (victimAttackers, victimHost))
-            print ("Attack occurred at: ", dt_string)
-        if not victimAttackers:
-            # No attackers identified, thus assume it's originating in the other domain
-            pushbacks.add(victim)
-        else:
-            attackers = attackers.union(victimAttackers)
+            print("Attackers for victim %s: %s" % (victimHost, victimAttackers))
+            print("Attack occurred at: ", dt_string)
+
+            if not victimAttackers:
+                # No attackers identified, thus assume it's originating in the other domain
+                pushbacks.add(victim)
+            else:
+                attackers = attackers.union(victimAttackers)
         
         # Increase the count for confidence in a suspected attack
-        # by the identifed attacker set if applicable
-        if len(attackers) > 0:
+        # by the identified attacker set if applicable
+        if attackers:
             self.sustainedAttacks += 1
-            logging.debug("Sustained Attack Count %s" % self.sustainedAttacks / 3)
-        elif len(attackers) == 0:
+            logging.debug("Sustained Attack Count %s" % (self.sustainedAttacks / 3))
+        else:
             self.sustainedAttacks = 0        
 
         # If we have exceeded the confidence count for the local attacker
         # set, apply ingress policies to all attackers
-        if self.sustainedAttacks / 3> SimpleMonitor.SUSTAINED_COUNT:
-            for attacker in self.attackers:
+        if self.sustainedAttacks / 3 > SimpleMonitor.SUSTAINED_COUNT:
+            for attacker in attackers:
                 self.applyIngress(attacker)
-        return pushbacks
         
+        return pushbacks
+
     # Check if the ingress policy should be removed for any port
     def checkForIngressRemoval(self, victims):
         self.sustainedAttacks = 0
