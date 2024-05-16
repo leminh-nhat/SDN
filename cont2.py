@@ -1,7 +1,7 @@
 from operator import attrgetter
 from datetime import datetime
 
-import simple_switch_13
+from ryu.app import simple_switch_13
 from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER, DEAD_DISPATCHER
 from ryu.controller.handler import set_ev_cls
@@ -9,7 +9,7 @@ from ryu.lib import hub
 
 import socket
 import threading
-import SocketServer
+import socketserver
 import subprocess
 import logging
 
@@ -22,7 +22,7 @@ logging.getLogger("ofp_event").setLevel(logging.WARNING)
 
 # Receiving requests and passing them to a controller method,
 # which handles the request
-class RequestHandler(SocketServer.BaseRequestHandler):
+class RequestHandler(socketserver.BaseRequestHandler):
 
     # Set to the handle method in the controller thread
     handler = None
@@ -33,7 +33,7 @@ class RequestHandler(SocketServer.BaseRequestHandler):
 
 
 # Simple TCP server spawning new thread for each request
-class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+class Server(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 
@@ -247,7 +247,7 @@ class SimpleMonitor(simple_switch_13.SimpleSwitch13):
         switch = self.dpids[dpid]
 
         if SimpleMonitor.REPORT_STATS:
-            print "-------------- Flow stats for switch", switch, "---------------"
+            print ("-------------- Flow stats for switch", switch, "---------------")
 
         # Iterate through all statistics reported for the flow
         for stat in sorted([flow for flow in body if flow.priority == 1],
@@ -267,7 +267,7 @@ class SimpleMonitor(simple_switch_13.SimpleSwitch13):
                 rate = self.bitrate(stat.byte_count - cnt)
             self.flow_byte_counts[key] = stat.byte_count
             if SimpleMonitor.REPORT_STATS:
-                print "In Port %8x Eth Dst %17s Out Port %8x Bitrate %f" % (in_port, eth_dst, out_port, rate)
+                print ("In Port %8x Eth Dst %17s Out Port %8x Bitrate %f" % (in_port, eth_dst, out_port, rate))
 
             # Save the bandwith calculated for this flow
             self.rates[switch][in_port - 1][str(eth_dst)] = rate
@@ -322,7 +322,7 @@ class SimpleMonitor(simple_switch_13.SimpleSwitch13):
         self.checkForIngressRemoval(victims)  # If there are no victims, for a sustained duration, try remove ingress policies
 
         if SimpleMonitor.REPORT_STATS:
-            print "--------------------------------------------------------"
+            print ("--------------------------------------------------------")
         
 
     # Handle pushback requests issued by the controller in the other domain
@@ -351,9 +351,9 @@ class SimpleMonitor(simple_switch_13.SimpleSwitch13):
         pushbacks = set()
         # Set of attackers in the local domain
         attackers = set()
-	# Set date and time of attack
-	now = datetime.now()
-	dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        # Set date and time of attack
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         for victim in victims:
             victimHost, victimSwitch, victimPort = self.getVictim(victim)
             print ("Identified victim: MAC %s Host %s Switch %s Port %s" % (victim, victimHost, victimSwitch, victimPort))
@@ -361,11 +361,11 @@ class SimpleMonitor(simple_switch_13.SimpleSwitch13):
             victimAttackers = self.getAttackers(victim)
             print ("Attackers for vicim %s: %s" % (victimAttackers, victimHost))
             print ("Attack occurred at: ", dt_string)
-	    if not victimAttackers:
-                # No attackers identified, thus assume it's originating in the other domain
-                pushbacks.add(victim)
-            else:
-                attackers = attackers.union(victimAttackers)
+        if not victimAttackers:
+            # No attackers identified, thus assume it's originating in the other domain
+            pushbacks.add(victim)
+        else:
+            attackers = attackers.union(victimAttackers)
         
         # Increase the count for confidence in a suspected attack
         # by the identifed attacker set if applicable
@@ -494,3 +494,4 @@ class SimpleMonitor(simple_switch_13.SimpleSwitch13):
                 rx_bitrate = self.bitrate(stat.rx_bytes - cnt1)
                 tx_bitrate = self.bitrate(stat.tx_bytes - cnt2)
             self.port_byte_counts[key] = (stat.rx_bytes, stat.tx_bytes)
+

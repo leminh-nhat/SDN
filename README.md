@@ -1,23 +1,14 @@
-# SDN-Forensics-IDS
-Implemented SDN IDS using Ryu controller.
+cd SDN-Forensics-IDS
 
-1. Run the following commands on the controller:
-cd /home/ubuntu/ryu && ./bin/ryu-manager --ofp-tcp-listen-port 6633 ryu/app/cont1.py (Domain A)
-cd /home/ubuntu/ryu && ./bin/ryu-manager --ofp-tcp-listen-port 6634 ryu/app/cont2.py (Domain B)
+Mở 1 terminal
+sudo python net.py
+Mở 1 terminal
+ryu-manager --ofp-tcp-listen-port 6633 cont1.py
+Mở 1 terminal
+ryu-manager --ofp-tcp-listen-port 6634 cont2.py
 
-2. Run custom topology:
-sudo python <topology_name>.py
-
-3. Start inter domain attack:
-BBh1 hping3 --flood --udp AAh1 &
-BBh1 hping3 --flood --udp AAh2 &
-BAh1 hping3 --flood --udp AAh1 &
-BAh1 hping3 --flood --udp AAh2 & etc.
-
-4. Start intra domain attack:
-ABh1 hping3 --flood --udp AAh1 &
-ABh1 hping3 --flood --udp AAh2 &
-ABh2 hping3 --flood --udp AAh1 &
-ABh2 hping3 --flood --udp AAh2 & etc.
-# SDN
-# SDN
+Các tác vụ:
+Khởi tạo mạng
+Giả lập tấn công 
+Đo lường mạng và vẽ biểu đồ
+Lưu và hiển thị file plot.pdf
