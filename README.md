@@ -20,7 +20,7 @@ nhằm thu thập thông tin nhằm quản lý lưu lượng mạng.
 Hệ thống bước đầu xây dựng nên chỉ ưu tiên xây dựng tính năng phát hiện các cuộc tấn
 công DoS (viết tắt của Denial of Service) – tấn công Từ chối Dịch vụ
 
-![](image/m1.png)
+![](m1.png)
 *Hình 1. Sơ đồ mạng mô phỏng với hệ thống gồm có 2 controller, 6 switches và 8 hosts*
 
 ## Chú thích các file
